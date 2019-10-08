@@ -47,7 +47,7 @@ string breadthFirst(handType origin, int depthLimit, int deadline);
 bool cardVectorMatch(vector<cardType> a, vector<cardType> b); 
 bool compareHands(handType a, handType b);
 int coverCount(handType h);
-handType dealCards(int gamenumber);
+handType dealCards(int gamenumber, int lowestRank);
 void displayHand(handType hand1);
 int dRand(void);
 int dumpingCount(handType h);
@@ -87,13 +87,19 @@ int main(int argc, char** argv)
 		
 	cout << "Game number " << gameNumber << endl;
 
-	//handType h = dealCards(gameNumber);
-	//handType h = dealCards(164);
-	//handType h = dealCards(169);
-	handType h = dealCards(10913);
-	//handType h = dealCards(-51);
+	int lowestRank = 10;
+	
+	//handType h = dealCards(gameNumber, lowestRank);
+	//handType h = dealCards(164, lowestRank);
+	handType h = dealCards(169, lowestRank);
+	//handType h = dealCards(10913, lowestRank);
+	//handType h = dealCards(-51, lowestRank);
+	
 	
 	int depthLimit = MAX_DEPTH;
+	
+	/* remove cards lower than the lowest rank */
+	
 	displayHand(h);
 	
 	int deadline = time(NULL) + 10;
@@ -221,15 +227,15 @@ char getRank(cardType card)
 
 /**************************************************************/
 
-handType dealCards(int gamenumber)
+handType dealCards(int gamenumber, int lowestRank)
 {
 	vector<cardType> deck;
 	handType h;
 	
-	h.lowestClub = 0;
-    h.lowestDiamond = 0;
-    h.lowestHeart = 0;
-    h.lowestSpade = 0;
+	h.lowestClub = lowestRank;
+    h.lowestDiamond = lowestRank;
+    h.lowestHeart = lowestRank;
+    h.lowestSpade = lowestRank;
 
 	/* set up free cells */
 	for(int i = 0; i < NUM_OF_FREECELLS; i++)
@@ -255,7 +261,8 @@ handType dealCards(int gamenumber)
 		deck[deck.size() - 1] = temp;
 		
         /* add card to stream */
-        h.stream[i % 8].push_back(deck[deck.size() - 1]);
+        if(getRankInt(deck[deck.size() - 1]) >= lowestRank)
+			h.stream[i % 8].push_back(deck[deck.size() - 1]);
         
         /* remove card from deck */
         deck.erase(deck.begin() + deck.size() - 1);
